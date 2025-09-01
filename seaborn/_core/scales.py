@@ -379,6 +379,15 @@ class ContinuousBase(Scale):
             locs = axis.major.locator()
             locs = locs[(vmin <= locs) & (locs <= vmax)]
             labels = axis.major.formatter.format_ticks(locs)
+            
+            # Handle ScalarFormatter with offset/scientific notation
+            if isinstance(axis.major.formatter, ScalarFormatter):
+                formatter = axis.major.formatter
+                if formatter.orderOfMagnitude != 0:
+                    # The formatter is using scientific notation, but the labels don't include it
+                    # We need to add the multiplicative factor to the labels
+                    labels = [f"{label}e{formatter.orderOfMagnitude}" for label in labels]
+            
             new._legend = list(locs), list(labels)
 
         return new
